@@ -1,3 +1,5 @@
+:- module(my_lists, []).
+
 %% 1.01 (*) Find the last element of a list.
 %% Example:
 %% ?- my_last(X,[a,b,c,d]).
