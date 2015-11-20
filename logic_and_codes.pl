@@ -153,36 +153,36 @@ init(Fs, Fs1) :-
     sort(2, @=<, Fs0, Fs1).
 
 convert([], []) :- !.
-convert([fr(C,F)|T], Fs) :-
+convert([fr(C, F)|T], Fs) :-
     convert(T, Fs1),
-    Fs = [fr(C,F,_,_)|Fs1].
+    Fs = [fr(C, F ,_ ,_)|Fs1].
 
 insert(X, [], [X]) :- !.
 insert(X, [H|T], [X,H|T]) :-
-    X = fr(_,F1,_,_),
-    H = fr(_,F2,_,_),
+    X = fr(_, F1, _, _),
+    H = fr(_, F2, _, _),
     F1 < F2, !.
 insert(X, [H|T], [H|L1]) :-
     insert(X, T, L1).
 
 build_tree([H], H) :- !.
 build_tree([A,B|T], Tree) :-
-    A = fr(_,F1,_,_),
-    B = fr(_,F2,_,_),
+    A = fr(_, F1, _, _),
+    B = fr(_, F2, _, _),
     F is F1 + F2,
-    insert(fr(_,F,A,B), T, L),
+    insert(fr(_, F, A, B), T, L),
     build_tree(L, Tree).
 
 tranverse(Tree, Hs) :-
     findall(H, tranverse0(Tree, H), Hs).
 
-tranverse0(fr(C,_,L,R), hc(C,'')) :-
+tranverse0(fr(C, _, L, R), hc(C, '')) :-
     var(L),
     var(R), !.
-tranverse0(fr(_,_,L,R), hc(X,S)) :-
+tranverse0(fr(_, _, L, R), hc(X, S)) :-
     (
-     tranverse0(L, hc(X,S1)),
+     tranverse0(L, hc(X, S1)),
      atom_concat('0', S1, S);
-     tranverse0(R, hc(X,S1)),
+     tranverse0(R, hc(X, S1)),
      atom_concat('1', S1, S)
     ).
