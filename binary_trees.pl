@@ -130,19 +130,37 @@ set_number(N, NL, NR) :-
     NR = N,
     NL is N - 1.
 
-%% N is number of nodes. There are duplicates now.
-hbal_tree1(0, nil) :- !.
-hbal_tree1(N, t(x, L, R)) :-
+%% 4.07 (**) Construct height-balanced binary trees with a given number of nodes
+%% Consider a height-balanced binary tree of height H. What is the maximum number
+%% of nodes it can contain?
+%% Clearly, MaxN = 2**H - 1. However, what is the minimum number MinN? This question
+%% is more difficult.
+%% Try to find a recursive statement and turn it into a predicate minNodes/2 defined
+%% as follwos:
+%% % minNodes(H,N) :- N is the minimum number of nodes in a height-balanced binary
+%% tree of height H.
+%% (integer,integer), (+,?)
+%% On the other hand, we might ask: what is the maximum height H a height-balanced
+%% binary tree with N nodes can have?
+%% % maxHeight(N,H) :- H is the maximum height of a height-balanced binary tree with
+%% N nodes
+%% (integer,integer), (+,?)
+%% Now, we can attack the main problem: construct all the height-balanced binary trees
+%% with a given nuber of nodes.
+%% % hbal_tree_nodes(N,T) :- T is a height-balanced binary tree with N nodes.
+%% Find out how many height-balanced trees exist for N = 15.
+hbal_tree_nodes(0, nil) :- !.
+hbal_tree_nodes(N, t(x, L, R)) :-
     N1 is N - 1,
     set_number1(N1, NL, NR),
-    hbal_tree1(NL, L),
-    hbal_tree1(NR, R).
+    hbal_tree_nodes(NL, L),
+    hbal_tree_nodes(NR, R).
 
 set_number1(0, 0, 0) :- !.
 set_number1(1, 1, 0).
 set_number1(1, 0, 1).
 set_number1(N, NL, NR) :-
-    N0 is N - 1,
+    N0 is ceiling((N + 1) / 2 - 1),
     between(1, N0, N1),
     N2 is N - N1,
     celling_log2(N1, 1, C1),
