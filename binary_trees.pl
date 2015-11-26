@@ -181,3 +181,64 @@ celling_log2(N, C0, C) :-
         celling_log2(N, C1, C)
     ;   C = C0
     ).
+
+%% 4.08 (*) Count the leaves of a binary tree
+%% A leaf is a node with no successors. Write a predicate count_leaves/2 to
+%% count them. 
+%% % count_leaves(T,N) :- the binary tree T has N leaves 
+count_leaves(nil, 0) :- !.
+count_leaves(t(_, nil, nil), 1) :- !.
+count_leaves(t(_, L, R), N) :-
+    count_leaves(L, N1),
+    count_leaves(R, N2),
+    N is N1 + N2.
+
+%% 4.09 (*) Collect the leaves of a binary tree in a list
+%% A leaf is a node with no successors. Write a predicate leaves/2 to collect
+%% them in a list. 
+%% % leaves(T,S) :- S is the list of all leaves of the binary tree T 
+leaves(nil, []) :- !.
+leaves(t(X, nil, nil), [t(X, nil, nil)]) :- !.
+leaves(t(_, L, R), S) :-
+    leaves(L, S1),
+    leaves(R, S2),
+    append(S1, S2, S).
+
+%% 4.10 (*) Collect the internal nodes of a binary tree in a list
+%% An internal node of a binary tree has either one or two non-empty successors.
+%% Write a predicate internals/2 to collect them in a list. 
+%% % internals(T,S) :- S is the list of internal nodes of the binary tree T. 
+internals(nil, []) :- !.
+internals(t(_, nil, nil), []) :- !.
+internals(t(X, L, R), [t(X)|S3]) :-
+    internals(L, S1),
+    internals(R, S2),
+    append(S1, S2, S3).
+
+%% 4.11 (*) Collect the nodes at a given level in a list
+%% A node of a binary tree is at level N if the path from the root to the node has
+%% length N-1. The root node is at level 1. Write a predicate atlevel/3 to collect
+%% all nodes at a given level in a list. 
+%% % atlevel(T,L,S) :- S is the list of nodes of the binary tree T at level L
+%% Using atlevel/3 it is easy to construct a predicate levelorder/2 which creates
+%% the level-order sequence of the nodes. However, there are more efficient ways to
+%% do that.
+atlevel(nil, _, []) :- !.
+atlevel(t(X, _, _), 1, [t(X)]) :- !.
+atlevel(t(_, L, R), Level, S) :-
+    Level1 is Level - 1,
+    atlevel(L, Level1, S1),
+    atlevel(R, Level1, S2),
+    append(S1, S2, S).
+
+levelorder(T, S) :-
+    levelorder0(T, 1, S).
+
+levelorder0(T, L, S) :-
+    atlevel(T, L, S1),
+    (   S1 \= []
+    ->  L1 is L + 1,
+        levelorder0(T, L1, S2),
+        append(S1, S2, S)
+    ;   S = S1
+    ).
