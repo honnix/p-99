@@ -242,3 +242,90 @@ levelorder0(T, L, S) :-
         append(S1, S2, S)
     ;   S = S1
     ).
+
+%% 4.12 (**) Construct a complete binary tree
+%% A complete binary tree with height H is defined as follows: The levels 1,2,3,...,H-1
+%% contain the maximum number of nodes (i.e 2**(i-1) at the level i, note that we start
+%% counting the levels from 1 at the root). In level H, which may contain less than the
+%% maximum possible number of nodes, all the nodes are "left-adjusted". This means that
+%% in a levelorder tree traversal all internal nodes come first, the leaves come second,
+%% and empty successors (the nil's which are not really nodes!) come last.
+%% Particularly, complete binary trees are used as data structures (or addressing schemes)
+%% for heaps.
+%% We can assign an address number to each node in a complete binary tree by enumerating
+%% the nodes in levelorder, starting at the root with number 1. In doing so, we realize
+%% that for every node X with address A the following property holds: The address of X's
+%% left and right successors are 2*A and 2*A+1, respectively, supposed the successors do
+%% exist. This fact can be used to elegantly construct a complete binary tree structure.
+%% Write a predicate complete_binary_tree/2 with the following specification: 
+%% % complete_binary_tree(N,T) :- T is a complete binary tree with N nodes. (+,?)
+%% Test your predicate in an appropriate way.
+complete_binary_tree(0, nil) :- !.
+complete_binary_tree(N, t(x, L, R)) :-
+    N1 is N - 1,
+    N2 is ceiling(N1 / 2),
+    N3 is N1 - N2,
+    complete_binary_tree(N2, L),
+    complete_binary_tree(N3, R).
+
+%% 4.13 (**) Layout a binary tree (1)
+%% Given a binary tree as the usual Prolog term t(X,L,R) (or nil). As a preparation for
+%% drawing the tree, a layout algorithm is required to determine the position of each
+%% node in a rectangular grid. Several layout methods are conceivable, one of them is
+%% shown in the illustration below.
+%% In this layout strategy, the position of a node v is obtained by the following two rules:
+%% x(v) is equal to the position of the node v in the inorder
+%% y(v) is equal to the depth of the node v in the tree
+%% sequence
+%% In order to store the position of the nodes, we extend the Prolog term representing a
+%% node (and its successors) as follows: 
+%% % nil represents the empty tree (as usual)
+%% % t(W,X,Y,L,R) represents a (non-empty) binary tree with root W "positioned" at (X,Y),
+%% and subtrees L and R 
+%% Write a predicate layout_binary_tree/2 with the following specification: 
+%% % layout_binary_tree(T,PT) :- PT is the "positioned" binary tree obtained from the binary
+%% tree T. (+,?)
+%% Test your predicate in an appropriate way. 
+layout_binary_tree(T, PT) :-
+    layout_binary_tree0(T, 1, 0, _, PT).
+
+layout_binary_tree0(nil, _, CurrentOrder, CurrentOrder, nil) :- !.
+layout_binary_tree0(t(W, L, R), Depth, CurrentOrder, Order, t(W, X, Depth, PL, PR)) :-
+    Depth1 is Depth + 1,
+    layout_binary_tree0(L, Depth1, CurrentOrder, Order1, PL),
+    X is Order1 + 1,
+    layout_binary_tree0(R, Depth1, X, Order, PR).
+
+%% 4.14 (**) Layout a binary tree (2)
+%% An alternative layout method is depicted in the above illustration. Find out the rules
+%% and write the corresponding Prolog predicate. Hint: On a given level, the horizontal
+%% distance between neighboring nodes is constant.
+%% Use the same conventions as in problem 4.13 and test your predicate in an appropriate way. 
+layout_binary_tree1(T, PT) :-
+    distance(T, D0),
+    D1 is D0 // 2,
+    layout_binary_tree10(T, 1, _, D1, PT).
+
+distance(nil, 1) :- !.
+distance(t(_, L, R), Distance) :-
+    distance(L, D1),
+    distance(R, D2),
+    Distance is 2 * max(D1, D2).
+
+layout_binary_tree10(nil, _, 0, _, nil) :- !.
+layout_binary_tree10(t(W, L, R), Depth, X, D, t(W, X, Depth, PL, PR)) :-
+    Depth1 is Depth + 1,
+    D1 is D // 2,
+    layout_binary_tree10(L, Depth1, XL, D1, PL),
+    X is XL + D1,
+    XR is XL + D,
+    layout_binary_tree11(R, Depth1, XR, D1, PR).
+
+layout_binary_tree11(nil, _, _, _, nil) :- !.
+layout_binary_tree11(t(W, L, R), Depth, X, D, t(W, X, Depth, PL, PR)) :-
+    Depth1 is Depth + 1,
+    D1 is D // 2,
+    XL is X - D1,
+    layout_binary_tree11(L, Depth1, XL, D1, PL),
+    XR is X + D1,
+    layout_binary_tree11(R, Depth1, XR, D1, PR).
