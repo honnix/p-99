@@ -329,3 +329,59 @@ layout_binary_tree11(t(W, L, R), Depth, X, D, t(W, X, Depth, PL, PR)) :-
     layout_binary_tree11(L, Depth1, XL, D1, PL),
     XR is X + D1,
     layout_binary_tree11(R, Depth1, XR, D1, PR).
+
+%% 4.16 (**) A string representation of binary trees
+%% Somebody represents binary trees as strings of the following type (see example):
+%% a(b(d,e),c(,f(g,)))
+%% a Write a Prolog predicate which generates this string representation, if the tree is given
+%% as usual (as nil or t(X,L,R) term). Then write a predicate which does this inverse; i.e.
+%% given the string representation, construct the tree in the usual form. Finally, combine the
+%% two predicates in a single predicate tree_string/2 which can be used in both directions.
+%% b) Write the same predicate tree_string/2 using difference lists and a single predicate
+%% tree_dlist/2 which does the conversion between a tree and a difference list in both directions.
+%% For simplicity, suppose the information in the nodes is a single letter and there are no spaces
+%% in the string. 
+tree_stringa(T, S) :-
+    var(S), !,
+    tree_to_string(T, S).
+tree_stringa(T, S) :-
+    var(T),
+    atom_chars(S, L),
+    string_to_tree(L, T).
+
+tree_to_string(nil, '') :- !.
+tree_to_string(t(X, nil, nil), X) :- !.
+tree_to_string(t(X, L, R), S) :-
+    tree_to_string(L, LS),
+    tree_to_string(R, RS),
+    atomic_list_concat([X, '(', LS, ',', RS, ')'], S).
+
+string_to_tree([], nil) :- !.
+string_to_tree([X], t(X, nil, nil)) :- !.
+string_to_tree([X,'('|T], t(X, L, R)) :-
+    append(List, [')'], T),
+    append(LL, [','|RL], List), !,
+    string_to_tree(LL, L),
+    string_to_tree(RL, R).
+
+tree_stringb(T, S) :-
+    var(S),
+    tree_dl(T, L-[]), !,
+    atom_chars(S, L).
+tree_stringb(T, S) :-
+    var(T),
+    atom_chars(S, L),
+    tree_dl(T, L-[]), !.
+
+tree_dl(nil, L-L).
+tree_dl(t(X, nil, nil), L1-L) :-
+    move(X, L1-L).
+tree_dl(t(X, L, R), L1-L7) :-
+    move(X, L1-L2),
+    move('(', L2-L3),
+    tree_dl(L, L3-L4),
+    move(',', L4-L5),
+    tree_dl(R, L5-L6),
+    move(')', L6-L7).
+
+move(X, [X|T]-T).
