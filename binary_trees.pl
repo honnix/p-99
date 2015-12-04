@@ -385,3 +385,32 @@ tree_dl(t(X, L, R), L1-L7) :-
     move(')', L6-L7).
 
 move(X, [X|T]-T).
+
+preorder(nil, '') :- !.
+preorder(t(X, L, R), S) :-
+    preorder(L, SL),
+    preorder(R, SR),
+    atomic_list_concat([X,SL,SR], S).
+
+inorder(nil, '') :- !.
+inorder(t(X, L, R), S) :-
+    inorder(L, SL),
+    inorder(R, SR),
+    atomic_list_concat([SL,X,SR], S).
+
+pre_in_tree(Pre, In, T) :-
+    atom_chars(Pre, PreS),
+    atom_chars(In, InS),
+    pre_in_tree0(PreS, InS, T).
+
+pre_in_tree0([], [], nil) :- !.
+pre_in_tree0([H|T], InS, t(H, Left, Right)) :-
+    split(InS, H, L, R),
+    length(L, Length),
+    my_lists:split(T, Length, T1, T2),
+    pre_in_tree0(T1, L, Left),
+    pre_in_tree0(T2, R, Right).
+
+split([H|T], H, [], T) :- !.
+split([H|T], X, [H|L], R) :-
+    split(T, X, L, R).

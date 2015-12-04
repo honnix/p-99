@@ -1,9 +1,7 @@
-dl_append(X-Xs, Y-Ys, Z-Zs) :-
-    Xs = Y,
-    Z = X,
-    Ys = Zs.
+dl_append(X-Y, Y-Z, X-Z).
 
-dl_append1(X-Y, Y-Z, X-Z).
+%% ??
+dl_append1(X-Y, Y, X).
 
 dl_rotate([H|T]-[H|A], T-A).
 
