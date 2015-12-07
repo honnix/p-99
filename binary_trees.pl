@@ -386,6 +386,20 @@ tree_dl(t(X, L, R), L1-L7) :-
 
 move(X, [X|T]-T).
 
+%% 4.17 (**) Preorder and inorder sequences of binary trees
+%% We consider binary trees with nodes that are identified by single lower-case letters, as in
+%% the example of problem 4.16.
+%% a) Write predicates preorder/2 and inorder/2 that construct the preorder and inorder sequence
+%% of a given binary tree, respectively. The results should be atoms, e.g. 'abdecfg' for the
+%% preorder sequence of the example in problem 4.16.
+%% b) Can you use preorder/2 from problem part a) in the reverse direction; i.e. given a preorder
+%% sequence, construct a corresponding tree? If not, make the necessary arrangements.
+%% c) If both the preorder sequence and the inorder sequence of the nodes of a binary tree are
+%% given, then the tree is determined unambiguously. Write a predicate pre_in_tree/3 that does the job.
+%% d) Solve problems a) to c) using difference lists. Cool! Use the predefined predicate time/1 to
+%% compare the solutions.
+%% What happens if the same character appears in more than one node. Try for instance
+%% pre_in_tree(aba,baa,T). 
 preorder(nil, '') :- !.
 preorder(t(X, L, R), S) :-
     preorder(L, SL),
@@ -405,12 +419,84 @@ pre_in_tree(Pre, In, T) :-
 
 pre_in_tree0([], [], nil) :- !.
 pre_in_tree0([H|T], InS, t(H, Left, Right)) :-
-    split(InS, H, L, R),
+    append(L, [H|R], InS), !,
     length(L, Length),
-    my_lists:split(T, Length, T1, T2),
+    split_at(T, Length, T1, T2),
     pre_in_tree0(T1, L, Left),
     pre_in_tree0(T2, R, Right).
 
-split([H|T], H, [], T) :- !.
-split([H|T], X, [H|L], R) :-
-    split(T, X, L, R).
+split_at(L, 0, [], L) :- !.
+split_at([H|T], N, L1, L2) :-
+    N1 is N - 1,
+    split_at(T, N1, L3, L2),
+    L1 = [H|L3].
+
+preorder_dl(T, S) :-
+    preorder_dl0(T, L-[]),
+    atom_chars(S, L).
+
+preorder_dl0(nil, L-L) :- !.
+preorder_dl0(t(X, L, R), S1-S) :-
+    move(X, S1-S2),
+    preorder_dl0(L, S2-S3),
+    preorder_dl0(R, S3-S).
+
+inorder_dl(T, S) :-
+    inorder_dl0(T, L-[]),
+    atom_chars(S, L).
+
+inorder_dl0(nil, L-L) :- !.
+inorder_dl0(t(X, L, R), S1-S) :-
+    inorder_dl0(L, S1-S2),
+    move(X, S2-S3),
+    inorder_dl0(R, S3-S).
+
+pre_in_tree_dl(Pre, In, T) :-
+    atom_chars(Pre, PreS),
+    atom_chars(In, InS),
+    pre_in_tree_dl0(PreS-[], InS-[], T).
+
+pre_in_tree_dl0(Pre-Pre, In-In, nil) :- !.
+pre_in_tree_dl0(Pre1-Pre4, In1-In4, t(H, L, R)) :-
+    move(H, Pre1-Pre2),
+    move(H, In2-In3),
+    pre_in_tree_dl0(Pre2-Pre3, In1-In2, L),
+    pre_in_tree_dl0(Pre3-Pre4, In3-In4, R).
+
+%% 4.18 (**) Dotstring representation of binary trees
+%% We consider again binary trees with nodes that are identified by single lower-case
+%% letters, as in the example of problem 4.16. Such a tree can be represented by the
+%% preorder sequence of its nodes in which dots (.) are inserted where an empty
+%% subtree (nil) is encountered during the tree traversal. For example, the tree shown
+%% in problem 4.16 is represented as 'abd..e..c.fg...'. First, try to establish a
+%% syntax (BNF or syntax diagrams) and then write a predicate tree_dotstring/2 which
+%% does the conversion in both directions. Use difference lists. 
+tree_dotstring_dl(T, S) :-
+    var(T), !,
+    atom_chars(S, L),
+    tree_dotstring_dl0(T, L-[]).
+tree_dotstring_dl(T, S) :-
+    var(S),
+    tree_dotstring_dl0(T, L-[]),
+    atom_chars(S, L).
+
+tree_dotstring_dl0(nil, ['.'|T]-T) :- !.
+tree_dotstring_dl0(t(X, L, R), S1-S4) :-
+    move(X, S1-S2),
+    tree_dotstring_dl0(L, S2-S3),
+    tree_dotstring_dl0(R, S3-S4).
+
+tree_dotstring(T, S) :-
+    var(T), !,
+    atom_chars(S, L),
+    tree_dotstring0(T, L).
+tree_dotstring(T, S) :-
+    var(S),
+    tree_dotstring0(T, L),
+    atom_chars(S, L).
+
+tree_dotstring0(nil, ['.'|_]) :- !.
+tree_dotstring0(t(H, L, R), [H|T]) :-
+    append(T1, T2, T),
+    tree_dotstring0(L, T1),
+    tree_dotstring0(R, T2), !.

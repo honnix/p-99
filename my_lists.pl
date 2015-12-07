@@ -199,10 +199,10 @@ drop0([H|T], N, N1, L) :-
 %% ?- split([a,b,c,d,e,f,g,h,i,k],3,L1,L2).
 %% L1 = [a,b,c]
 %% L2 = [d,e,f,g,h,i,k]
-split(L, 0, [], L) :- !.
-split([H|T], N, L1, L2) :-
+my_split(L, 0, [], L) :- !.
+my_split([H|T], N, L1, L2) :-
     N1 is N - 1,
-    split(T, N1, L3, L2),
+    my_split(T, N1, L3, L2),
     L1 = [H|L3].
 
 %% 1.18 (**) Extract a slice from a list.
