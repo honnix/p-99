@@ -330,6 +330,55 @@ layout_binary_tree11(t(W, L, R), Depth, X, D, t(W, X, Depth, PL, PR)) :-
     XR is X + D1,
     layout_binary_tree11(R, Depth1, XR, D1, PR).
 
+%% 4.15 (***) Layout a binary tree (3)
+%% Yet another layout strategy is shown in the above illustration. The method yields a very
+%% compact layout while maintaining a certain symmetry in every node. Find out the rules and
+%% write the corresponding Prolog predicate. Hint: Consider the horizontal distance between
+%% a node and its successor nodes. How tight can you pack together two subtrees to construct
+%% the combined binary tree?
+%% Use the same conventions as in problem 4.13 and 4.14 and test your predicate in an
+%% appropriate way. Note: This is a difficult problem. Don't give up too early!
+%% Which layout do you like most?
+
+% layout_binary_tree2(T, PT) :-
+%     mark(T, MT),
+%     layout_binary_tree20(MT, 1, _, PT).
+
+% layout_binary_tree20(nil, _, 1, nil) :- !.
+% layout_binary_tree20(t(W, M, L, R), Depth, X, t(W, X, Depth, PL, PR)) :-
+%     Depth1 is Depth + 1,
+%     layout_binary_tree20(L, Depth1, XL, PL),
+%     X is XL + M,
+%     XR is X + M,
+%     layout_binary_tree21(R, Depth1, XR, PR).
+
+% layout_binary_tree21(nil, _, _, nil) :- !.
+% layout_binary_tree21(t(W, M, L, R), Depth, X, t(W, X, Depth, PL, PR)) :-
+%     Depth1 is Depth + 1,
+%     XL is X - M,
+%     layout_binary_tree21(L, Depth1, XL, PL),
+%     XR is X + M,
+%     layout_binary_tree21(R, Depth1, XR, PR).
+
+% mark(nil, nil) :- !.
+% mark(t(X, nil, nil), t(X, 0, nil, nil)) :- !.
+% mark(t(X, L, R), t(X, M, L1, R1)) :-
+%     mark(L, L1),
+%     mark(R, R1),
+%     (   L1 = t(_, M1, _, _)
+%     ->  true
+%     ;   M1 = 0
+%     ),
+%     (   R1 = t(_, M2, _, _)
+%     ->  true
+%     ;   M2 = 0
+%     ),
+%     calculate(M1, M2, M).
+
+% calculate(0, 0, 1) :- !.
+% calculate(M1, M2, M) :-
+%     M is M1 + M2.
+
 %% 4.16 (**) A string representation of binary trees
 %% Somebody represents binary trees as strings of the following type (see example):
 %% a(b(d,e),c(,f(g,)))
