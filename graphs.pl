@@ -11,7 +11,8 @@ path(G, A, B, P0, P) :-
     path(G, N, B, [N|P0], P).
 
 neighbour(graph(_, E), A, N) :-
-    member(e(A, N), E).
+    member(e(A, N), E);
+    member(e(N, A), E).
 
 %% 6.03 (*) Cycle from a given node
 %% Write a predicate cycle(G,A,P) to find a closed path (cycle) P starting at a
@@ -75,3 +76,40 @@ edge_sum([], 0) :- !.
 edge_sum([e(_, _, V)|T], Sum) :-
     edge_sum(T, Sum1),
     Sum is Sum1 + V.
+
+%% 6.06 (**) Graph isomorphism
+%% Two graphs G1(N1,E1) and G2(N2,E2) are isomorphic if there is a bijection
+%% f: N1 -> N2 such that for any nodes X,Y of N1, X and Y are adjacent if
+%% and only if f(X) and f(Y) are adjacent.
+%% Write a predicate that determines whether two graphs are isomorphic.
+%% Hint: Use an open-ended list to represent the function f.
+isomorphic(graph(N1, E1), graph(N2, E2), F) :-
+    isomorphic0(N1, E1, N2, E2, [], F), !.
+
+isomorphic0([], _, [], _, F, F) :- !.
+isomorphic0([H|T], E1, N2, E2, F0, F) :-
+    select(P, N2, N21),
+    neighbours(H, E1, Neighbours1),
+    neighbours(P, E2, Neighbours2),
+    remove_edges(H, E1, E11),
+    remove_edges(P, E2, E21),
+    isomorphic0(Neighbours1, E11, Neighbours2, E21, F0, F1),
+    F2 = [H-P|F1],
+    %% forest case
+    leftover(F2, T, E1, N21, E2, LT, LE1, LN21, LE2),
+    isomorphic0(LT, LE1, LN21, LE2, F2, F).
+
+neighbours(P, E, Neighbours) :-
+    findall(Neighbour, neighbour(graph(_, E), P, Neighbour), Neighbours).
+
+leftover([], P1, E1, P2, E2, P1, E1, P2, E2) :- !.
+leftover([X-Y|T], P1, E1, P2, E2, LP1, LE1, LP2, LE2) :-
+    delete(P1, X, P11),
+    delete(P2, Y, P21),
+    remove_edges(X, E1, E11),
+    remove_edges(Y, E2, E21),
+    leftover(T, P11, E11, P21, E21, LP1, LE1, LP2, LE2).
+
+remove_edges(P, E0, E) :-
+    delete(E0, e(P, _), E1),
+    delete(E1, e(_, P), E).
