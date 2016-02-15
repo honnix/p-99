@@ -27,7 +27,7 @@ cycle(G, A, C, P0, P) :-
     ->  cycle(G, A, N, [N|P0], P)
     ;   P = P0
     ).
-    
+
 %% 6.04 (**) Construct all spanning trees
 %% Write a predicate s_tree(Graph,Tree) to construct (by backtracking) all
 %% spanning trees of a given graph. With this predicate, find out how many
@@ -61,7 +61,7 @@ is_tree(G) :-
 is_connected(G) :-
     s_tree(G, _), !.
 
-%% 6.05 (**) Construct the minimal spanning tree 
+%% 6.05 (**) Construct the minimal spanning tree
 %% Write a predicate ms_tree(Graph,Tree,Sum) to construct the minimal
 %% spanning tree of a given labelled graph. Hint: Use the algorithm of Prim.
 %% A small modification of the solution of 6.04 does the trick. The data of
