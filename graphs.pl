@@ -23,10 +23,8 @@ path(G, A, B, P0, P) :-
     path(G, N, B, [N|P0], P).
 
 neighbour(graph(_, E), A, N) :-
-    (   memberchk(e(A, N), E)
-    ->  true
-    ;   memberchk(e(N, A), E)
-    ).
+    memberchk(e(A, N), E);
+    memberchk(e(N, A), E).
 
 %% 6.03 (*) Cycle from a given node
 %% Write a predicate cycle(G,A,P) to find a closed path (cycle) P starting at a
@@ -140,7 +138,8 @@ degree(graph(_, E), Node, Deg) :-
     length(Neighbours, Deg).
 
 sort_by_degree(graph(N, E), List) :-
-    maplist({N}/[In,Out]>>(degree(graph(N, E), In, Deg), Out = node(In, Deg)), N, List0),
+    maplist({N}/[In,Out]>>(degree(graph(N, E), In, Deg), Out = node(In, Deg)),
+            N, List0),
     sort(2, '@>=', List0, List1),
     maplist([In,Out]>>(In = node(Out, _)), List1, List).
 
@@ -148,7 +147,7 @@ welsh_powell_coloring(Graph, Colors) :-
     sort_by_degree(Graph, List),
     welsh_powell_coloring0(List, Graph, 1, [], Colors).
 
-welsh_powell_coloring0([], _, _, Colors, Colors).
+welsh_powell_coloring0([], _, _, Colors, Colors) :- !.
 welsh_powell_coloring0([H|T], Graph, N, Colors0, Colors) :-
     Colors1 = [H-N|Colors0],
     exclude({Graph, H}/[In]>>neighbour(Graph, H, In), T, T1),
@@ -157,3 +156,34 @@ welsh_powell_coloring0([H|T], Graph, N, Colors0, Colors) :-
     subtract(T, T1, T2),
     N1 is N + 1,
     welsh_powell_coloring0(T2, Graph, N1, Colors3, Colors).
+
+%% 6.08 (**) Depth-first order graph traversal
+%% Write a predicate that generates a depth-first order graph traversal
+%% sequence. The starting point should be specified, and the output
+%% should be a list of nodes that are reachable from this starting point
+%% (in depth-first order).
+
+traversal(graph(N, E), Start, List) :-
+    neighbours(Start, E, Neighbours),
+    traversal0(graph(N, E), Neighbours, [Start], List).
+
+traversal0(_, [], List, List) :- !.
+traversal0(graph(N, E), [H|T], List0, List) :-
+    (   \+ memberchk(H, List0)
+    ->  neighbours(H, E, Neighbours),
+        traversal0(graph(N, E), Neighbours, [H|List0], List1)
+    ;   List1 = List0
+    ),
+    traversal0(graph(N, E), T, List1, List).
+
+%% 6.09 (**) Connected components
+%% Write a predicate that splits a graph into its connected components. 
+
+%% 6.10 (**) Bipartite graphs
+%% Write a predicate that finds out whether a given graph is bipartite.
+
+%%6.11 (***) Generate K-regular simple graphs with N nodes
+%% In a K-regular graph all nodes have a degree of K; i.e. the number of
+%% edges incident in each node is K. How many (non-isomorphic!)
+%% 3-regular graphs with 6 nodes are there? 
+%% See also the table of results in p6_11.txt.
