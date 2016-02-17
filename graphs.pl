@@ -165,7 +165,8 @@ welsh_powell_coloring0([H|T], Graph, N, Colors0, Colors) :-
 
 traversal(graph(N, E), Start, List) :-
     neighbours(Start, E, Neighbours),
-    traversal0(graph(N, E), Neighbours, [Start], List).
+    traversal0(graph(N, E), Neighbours, [Start], List0),
+    reverse(List0, List).
 
 traversal0(_, [], List, List) :- !.
 traversal0(graph(N, E), [H|T], List0, List) :-
@@ -178,11 +179,19 @@ traversal0(graph(N, E), [H|T], List0, List) :-
 
 %% 6.09 (**) Connected components
 %% Write a predicate that splits a graph into its connected components. 
+split(graph(N, E), Components) :-
+    split0(N, graph(N, E), [], Components).
+
+split0([], _, Components, Components) :- !.
+split0([H|T], Graph, Components0, Components) :-
+    traversal(Graph, H, List),
+    subtract([H|T], List, Left),
+    split0(Left, Graph, [List|Components0], Components).
 
 %% 6.10 (**) Bipartite graphs
 %% Write a predicate that finds out whether a given graph is bipartite.
 
-%%6.11 (***) Generate K-regular simple graphs with N nodes
+%% 6.11 (***) Generate K-regular simple graphs with N nodes
 %% In a K-regular graph all nodes have a degree of K; i.e. the number of
 %% edges incident in each node is K. How many (non-isomorphic!)
 %% 3-regular graphs with 6 nodes are there? 
