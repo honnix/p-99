@@ -1,3 +1,15 @@
+:- use_module(library(yall)).
+
+%% !!
+%% graph([b,c,d,f,g,h,k],[e(b,c),e(b,f),e(c,f),e(f,k),e(g,h)])
+%%
+%% We call this graph-term form. Note, that the lists are kept sorted, they
+%% are really sets, without duplicated elements. Each edge appears only once
+%% in the edge list; i.e. an edge from a node x to another node y is
+%% represented as e(x,y), the term e(y,x) is not present. The graph-term form
+%% is our default representation. In SWI-Prolog there are predefined
+%% predicates to work with sets. 
+
 %% 6.02 (**) Path from one node to another one
 %% Write a predicate path(G,A,B,P) to find an acyclic path P from node A to
 %% node B in the graph G. The predicate should return all paths via backtracking.
@@ -11,8 +23,10 @@ path(G, A, B, P0, P) :-
     path(G, N, B, [N|P0], P).
 
 neighbour(graph(_, E), A, N) :-
-    member(e(A, N), E);
-    member(e(N, A), E).
+    (   memberchk(e(A, N), E)
+    ->  true
+    ;   memberchk(e(N, A), E)
+    ).
 
 %% 6.03 (*) Cycle from a given node
 %% Write a predicate cycle(G,A,P) to find a closed path (cycle) P starting at a
@@ -113,3 +127,33 @@ leftover([X-Y|T], P1, E1, P2, E2, LP1, LE1, LP2, LE2) :-
 remove_edges(P, E0, E) :-
     delete(E0, e(P, _), E1),
     delete(E1, e(_, P), E).
+
+%% 6.07 (**) Node degree and graph coloration
+%% a) Write a predicate degree(Graph,Node,Deg) that determines the degree
+%%    of a given node.
+%% b) Write a predicate that generates a list of all nodes of a graph
+%%    sorted according to decreasing degree.
+%% c) Use Welch-Powell's algorithm to paint the nodes of a graph in such
+%%    a way that adjacent nodes have different colors.
+degree(graph(_, E), Node, Deg) :-
+    neighbours(Node, E, Neighbours),
+    length(Neighbours, Deg).
+
+sort_by_degree(graph(N, E), List) :-
+    maplist({N}/[In,Out]>>(degree(graph(N, E), In, Deg), Out = node(In, Deg)), N, List0),
+    sort(2, '@>=', List0, List1),
+    maplist([In,Out]>>(In = node(Out, _)), List1, List).
+
+welsh_powell_coloring(Graph, Colors) :-
+    sort_by_degree(Graph, List),
+    welsh_powell_coloring0(List, Graph, 1, [], Colors).
+
+welsh_powell_coloring0([], _, _, Colors, Colors).
+welsh_powell_coloring0([H|T], Graph, N, Colors0, Colors) :-
+    Colors1 = [H-N|Colors0],
+    exclude({Graph, H}/[In]>>neighbour(Graph, H, In), T, T1),
+    maplist({N}/[In,Out]>>(Out = In-N), T1, Colors2),
+    append(Colors2, Colors1, Colors3),
+    subtract(T, T1, T2),
+    N1 is N + 1,
+    welsh_powell_coloring0(T2, Graph, N1, Colors3, Colors).
