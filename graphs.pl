@@ -211,9 +211,50 @@ bipartite0([H|T], E, Left, Right, L, R) :-
     ),
     bipartite0(T, E, Left1, Right1, L, R).
     
-
 %% 6.11 (***) Generate K-regular simple graphs with N nodes
 %% In a K-regular graph all nodes have a degree of K; i.e. the number of
 %% edges incident in each node is K. How many (non-isomorphic!)
-%% 3-regular graphs with 6 nodes are there? 
+%% 3-regular graphs with 6 nodes are there?
 %% See also the table of results in p6_11.txt.
+k_regular_non_isomorphic(K, N, Graphs) :-
+    findall(Graph, k_regular(K, N, Graph), Graphs0),
+    non_isomorphic(Graphs0, Graphs).
+
+non_isomorphic([], []) :- !.
+non_isomorphic([H|T], Graphs) :-
+    non_isomorphic(T, Graphs0),
+    (   forall(member(X, Graphs0), (\+ isomorphic(X, H, _)))
+    ->  Graphs = [H|Graphs0]
+    ;   Graphs = Graphs0
+    ).
+
+k_regular(K, N, graph(Nodes, E)) :-
+    nodes(N, Nodes),
+    k_regular0(Nodes, K, graph(Nodes, E)).
+
+k_regular0([], _, graph(_, [])) :- !.
+k_regular0([H|T], K, graph(N, E)) :-
+    k_regular0(T, K, graph(N, E0)),
+    degree(graph(N, E0), H, Deg),
+    Diff is K - Deg,
+    add_edge(H, Diff, K, graph(N, E0), graph(N, E)).
+
+add_edge(_, 0, _, Graph, Graph) :- !.
+add_edge(Node, Diff, K, graph(N, E0), graph(N, E)) :-
+    member(X, N),
+    X \= Node,
+    \+ neighbour(graph(N, E0), X, Node),
+    degree(graph(N, E0), X, D),
+    D < K,
+    Diff1 is Diff - 1,
+    add_edge(Node, Diff1, K, graph(N, [e(Node, X)|E0]), graph(N, E)).
+
+nodes(N, Nodes) :-
+    length(Nodes, N),
+    nodes0(1, N, Nodes).
+
+nodes0(N1, N, []) :-
+    N1 is N + 1, !.
+nodes0(N1, N, [N1|Nodes0]) :-
+    N2 is N1 + 1,
+    nodes0(N2, N, Nodes0).
