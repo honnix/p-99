@@ -23,8 +23,8 @@ path(G, A, B, P0, P) :-
     path(G, N, B, [N|P0], P).
 
 neighbour(graph(_, E), A, N) :-
-    memberchk(e(A, N), E);
-    memberchk(e(N, A), E).
+    member(e(A, N), E);
+    member(e(N, A), E).
 
 %% 6.03 (*) Cycle from a given node
 %% Write a predicate cycle(G,A,P) to find a closed path (cycle) P starting at a
@@ -190,6 +190,27 @@ split0([H|T], Graph, Components0, Components) :-
 
 %% 6.10 (**) Bipartite graphs
 %% Write a predicate that finds out whether a given graph is bipartite.
+bipartite(graph(N, E), L, R) :-
+    bipartite0(N, E, [], [], L, R).
+
+bipartite0([], _, L, R, L, R) :- !.
+bipartite0([H|T], E, Left, Right, L, R) :-
+    neighbours(H, E, Neighbours),
+    (   forall(member(X, Neighbours), (\+ memberchk(X, Left)))
+    ->  (   memberchk(H, Left)
+        ->  Left1 = Left
+        ;   Left1 = [H|Left]
+        ),
+        Right1 = Right
+    ;   forall(member(X, Neighbours), (\+ memberchk(X, Right)))
+    ->  (   memberchk(H, Right)
+        ->  Right1 = Right
+        ;   Right1 = [H|Right]
+        ),
+        Left1 = Left
+    ),
+    bipartite0(T, E, Left1, Right1, L, R).
+    
 
 %% 6.11 (***) Generate K-regular simple graphs with N nodes
 %% In a K-regular graph all nodes have a degree of K; i.e. the number of
