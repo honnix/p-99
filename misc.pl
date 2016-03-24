@@ -42,3 +42,43 @@ diagonal_check0(right, V, [H|T], N) :-
     H \= V,
     V1 is V + 1,
     diagonal_check0(right, V1, T, N).
+
+%% 7.02 (**) Knight's tour
+%% Another famous problem is this one: How can a knight jump on an
+%% NxN chessboard in such a way that it visits every square exactly
+%% once?
+%% Hints: Represent the squares by pairs of their coordinates of
+%% the form X/Y, where both X and Y are integers between 1 and N.
+%% (Note that '/' is just a convenient functor, not division!) Define
+%% the relation jump(N,X/Y,U/V) to express the fact that a knight can
+%% jump from X/Y to U/V on a NxN chessboard. And finally, represent
+%% the solution of our problem as a list of N*N knight positions
+%% (the knight's tour).
+
+knight_tour(N, Path) :-
+    knight_tour0([jump(1/1, 1/1)], Path, N).
+
+knight_tour0(Path, Path, N) :-
+    Size is N * N,
+    length(Path, Size), !.
+knight_tour0([jump(From, Last)|T], Path, N) :-
+    jump(Last, Next, N),
+    Next \= From,
+    \+ member(jump(Next, _), T),
+    knight_tour0([jump(Last, Next),jump(From, Last)|T], Path, N).
+
+jump(X/Y, U/V, N) :-
+    jump_distance(X0, Y0),
+    U is X + X0,
+    U >= 1, U =< N,
+    V is Y + Y0,
+    V >= 1, V =< N.
+
+jump_distance(1, 2).
+jump_distance(2, 1).
+jump_distance(-1, 2).
+jump_distance(-2, 1).
+jump_distance(-1, -2).
+jump_distance(-2, -1).
+jump_distance(1, -2).
+jump_distance(2, -1).
