@@ -82,3 +82,42 @@ jump_distance(-1, -2).
 jump_distance(-2, -1).
 jump_distance(1, -2).
 jump_distance(2, -1).
+
+%% 7.03 (***) Von Koch's conjecture
+%% Several years ago I met a mathematician who was intrigued by a
+%% problem for which he didn't know a solution. His name was
+%% Von Koch, and I don't know whether the problem has been solved
+%% since.
+%% Anyway, the puzzle goes like this: Given a tree with N nodes
+%% (and hence N-1 edges). Find a way to enumerate the nodes from 1
+%% to N and, accordingly, the edges from 1 to N-1 in such a way,
+%% that for each edge K the difference of its node numbers equals
+%% to K. The conjecture is that this is always possible.
+%% For small trees the problem is easy to solve by hand. However,
+%% for larger trees, and 14 is already very large, it is extremely
+%% difficult to find a solution. And remember, we don't know for
+%% sure whether there is always a solution!
+vkc(t(R, S), N, Solution) :-
+    make_range_list(N, [], LN),
+    N1 is N - 1,
+    make_range_list(N1, [], LE),
+    member(X, LN),
+    delete(LN, X, LN1),
+    vkc(S, X, LN1, LE, [], [], [R-X], Solution),
+    write(Solution).
+
+vkc([], _, LN, LE, LN, LE, Solution, Solution) :- !.
+vkc([t(K, S)|T], P, LN0, LE0, LN, LE, Solution0, Solution) :-
+    member(X, LN0),
+    E is abs(X - P),
+    member(E, LE0),
+    delete(LN0, X, LN1),
+    delete(LE0, E, LE1),
+    vkc(S, X, LN1, LE1, LN2, LE2, [K-X|Solution0], Solution1),
+    vkc(T, P, LN2, LE2, LN, LE, Solution1, Solution).
+
+make_range_list(0, L, L) :- !.
+make_range_list(N, L0, L) :-
+    L1 = [N|L0],
+    N1 is N - 1,
+    make_range_list(N1, L1, L).
