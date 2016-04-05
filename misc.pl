@@ -198,3 +198,42 @@ map(6, six).
 map(7, seven).
 map(8, eight).
 map(9, nine).
+
+%%  7.06 (**) Syntax checker
+%% In a certain programming language (Ada) identifiers are defined
+%% by the syntax diagram (railroad chart) opposite. Transform the
+%% syntax diagram into a system of syntax diagrams which do not
+%% contain loops; i.e. which are purely recursive. Using these
+%% modified diagrams, write a predicate identifier/1 that can
+%% check whether or not a given string is a legal identifier.
+%% identifier(Str) :- Str is a legal identifier
+identifier(S) :-
+    atom_chars(S, Chars),
+    i_letter(Chars), !.
+
+:- use_module(library(dialect/ifprolog)).
+
+i_letter([]).
+i_letter([H|T]) :-
+    letter(H),
+    (
+     i_dash(T);
+     i_letter(T);
+     i_digit(T)
+    ).
+
+i_dash(['-']) :- !, fail.
+i_dash(['-'|T]) :-
+    (
+     i_letter(T);
+     i_digit(T)
+    ).
+
+i_digit([]) :- !.
+i_digit([H|T]) :-
+    digit(H),
+    (
+     i_dash(T);
+     i_letter(T);
+     i_digit(T)
+    ).
