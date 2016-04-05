@@ -121,3 +121,80 @@ make_range_list(N, L0, L) :-
     L1 = [N|L0],
     N1 is N - 1,
     make_range_list(N1, L1, L).
+
+%% 7.04 (***) An arithmetic puzzle
+%% Given a list of integer numbers, find a correct way of inserting
+%% arithmetic signs (operators) such that the result is a correct
+%% equation. Example: With the list of numbers [2,3,5,7,11] we can
+%%form the equations 2-3+5+7 = 11 or 2 = (3*5+7)/11 (and ten others!).
+arithmetic_puzzle(L, P) :-
+    split(L, [HL|TL], [HR|TR]),
+    arithmetic_puzzle(TL, [], HL, R, HL, PL0),
+    arithmetic_puzzle(TR, [], HR, R, HR, PR0),
+    format(PL0, PL),
+    format(PR0, PR),
+    atomic_list_concat([PL,'=',PR], P).
+
+arithmetic_puzzle([], [], R, R, P, P) :- !.
+arithmetic_puzzle([X], [], Y, R, P0, opt(P0, O, X)) :- !,
+    compute(Y, X, O, R).
+arithmetic_puzzle([X|T], L, Y, R, P0, P):-
+    compute(Y, X, O, R1),
+    arithmetic_puzzle(T, L, R1, R, opt(P0, O, X), P).
+arithmetic_puzzle([X|T], T, Y, R, P0, opt(P0, O, X)):-
+    compute(Y, X, O, R).
+arithmetic_puzzle([X|T], L, Y, R, P0, P) :-
+    arithmetic_puzzle(T, L0, X, R1, X, P1),
+    compute(Y, R1, O, R2),
+    arithmetic_puzzle(L0, L, R2, R, opt(P0, O, P1), P).
+
+split(L,L1,L2) :-
+    append(L1,L2,L),
+    L1 \= [],
+    L2 \= [].
+
+compute(X, Y, -, Z) :-
+    Z is X - Y.
+compute(X, Y, +, Z) :-
+    Z is X + Y.
+compute(X, Y, *, Z) :-
+    Z is X * Y.
+compute(X, Y, /, Z) :-
+    Y =\= 0,
+    Z is X / Y.
+
+format(opt(X, O, Y), P) :- !,
+    format(X, P1),
+    format(Y, P2),
+    atomic_list_concat(['(',P1,O,P2,')'], P).
+format(P, P).
+
+%% 7.05 (**) English number words
+%% On financial documents, like cheques, numbers must sometimes be
+%% written in full words. Example: 175 must be written as
+%% one-seven-five. Write a predicate full_words/1 to print
+%% (non-negative) integer numbers in full words.
+full_words(N) :-
+    integer(N),
+    N >= 0,
+    full_words0(N, '').
+full_words0(N, D) :-
+    divmod(N, 10, 0, R), !,
+    map(R, W),
+    writef('%w%w', [W,D]).
+full_words0(N, D) :-
+    divmod(N, 10, Q, R),
+    full_words0(Q, '-'),
+    map(R, W),
+    writef('%w%w', [W,D]).
+
+map(0, zero).
+map(1, one).
+map(2, two).
+map(3, three).
+map(4, four).
+map(5, five).
+map(6, six).
+map(7, seven).
+map(8, eight).
+map(9, nine).
