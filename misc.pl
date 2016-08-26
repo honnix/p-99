@@ -131,8 +131,8 @@ arithmetic_puzzle(L, P) :-
     split(L, [HL|TL], [HR|TR]),
     arithmetic_puzzle(TL, [], HL, R, HL, PL0),
     arithmetic_puzzle(TR, [], HR, R, HR, PR0),
-    format(PL0, PL),
-    format(PR0, PR),
+    format1(PL0, PL),
+    format1(PR0, PR),
     atomic_list_concat([PL,'=',PR], P).
 
 arithmetic_puzzle([], [], R, R, P, P) :- !.
@@ -163,11 +163,11 @@ compute(X, Y, /, Z) :-
     Y =\= 0,
     Z is X / Y.
 
-format(opt(X, O, Y), P) :- !,
-    format(X, P1),
-    format(Y, P2),
+format1(opt(X, O, Y), P) :- !,
+    format1(X, P1),
+    format1(Y, P2),
     atomic_list_concat(['(',P1,O,P2,')'], P).
-format(P, P).
+format1(P, P).
 
 %% 7.05 (**) English number words
 %% On financial documents, like cheques, numbers must sometimes be
@@ -237,3 +237,109 @@ i_digit([H|T]) :-
      i_letter(T);
      i_digit(T)
     ).
+
+%% 7.07 (**) Sudoku
+%% Sudoku puzzles go like this:
+%% 
+%%    Problem statement                 Solution
+%%     .  .  4 | 8  .  . | .  1  7	     9  3  4 | 8  2  5 | 6  1  7	     
+%%             |         |                      |         |
+%%     6  7  . | 9  .  . | .  .  .	     6  7  2 | 9  1  4 | 8  5  3
+%%             |         |                      |         |
+%%     5  .  8 | .  3  . | .  .  4      5  1  8 | 6  3  7 | 9  2  4
+%%     --------+---------+--------      --------+---------+--------
+%%     3  .  . | 7  4  . | 1  .  .      3  2  5 | 7  4  8 | 1  6  9
+%%             |         |                      |         |
+%%     .  6  9 | .  .  . | 7  8  .      4  6  9 | 1  5  3 | 7  8  2
+%%             |         |                      |         |
+%%     .  .  1 | .  6  9 | .  .  5      7  8  1 | 2  6  9 | 4  3  5
+%%     --------+---------+--------      --------+---------+--------
+%%     1  .  . | .  8  . | 3  .  6	     1  9  7 | 5  8  2 | 3  4  6
+%%             |         |                      |         |
+%%     .  .  . | .  .  6 | .  9  1	     8  5  3 | 4  7  6 | 2  9  1
+%%             |         |                      |         |
+%%     2  4  . | .  .  1 | 5  .  .      2  4  6 | 3  9  1 | 5  7  8
+%% 
+%% Every spot in the puzzle belongs to a (horizontal) row and a (vertical)
+%% column, as well as to one single 3x3 square (which we call "square"
+%% for short). At the beginning, some of the spots carry a single-digit
+%% number between 1 and 9. The problem is to fill the missing spots with
+%% digits in such a way that every number between 1 and 9 appears exactly
+%% once in each row, in each column, and in each square.
+
+%% a shortcut using clpfd
+:- use_module(library(clpfd)).
+
+% Example by Markus Triska, taken from the SWI-Prolog manual.
+
+sudoku(Rows) :-
+    length(Rows, 9),
+    maplist(same_length(Rows), Rows),
+    append(Rows, Vs),
+    Vs ins 1..9,
+    maplist(all_distinct, Rows),
+    transpose(Rows, Columns),
+    maplist(all_distinct, Columns),
+    Rows = [A,B,C,D,E,F,G,H,I],
+    blocks(A, B, C),
+    blocks(D, E, F),
+    blocks(G, H, I).
+
+blocks([], [], []).
+blocks([A,B,C|Bs1], [D,E,F|Bs2], [G,H,I|Bs3]) :-
+    all_distinct([A,B,C,D,E,F,G,H,I]),
+    blocks(Bs1, Bs2, Bs3).
+
+problem(1, [[_,_,4, 8,_,_, _,1,7],
+            [6,7,_, 9,_,_, _,_,_],
+            [5,_,8, _,3,_, _,_,4],
+
+            [3,_,_, 7,4,_, 1,_,_],
+            [_,6,9, _,_,_, 7,8,_],
+            [_,_,1, _,6,9, _,_,5],
+
+            [1,_,_, _,8,_, 3,_,6],
+            [_,_,_, _,_,6, _,9,1],
+            [2,4,_, _,_,1, 5,_,_]]).
+
+%% witout clp but sharing clp's abstraction
+%% simply doens't work, too slow due to late backtracking
+sudoku1(Rows) :-
+    length(Rows, 9),
+    maplist(same_length(Rows), Rows),
+    maplist(all_distinct1, Rows),
+    transpose(Rows, Columns),
+    maplist(all_distinct1, Columns),
+    Rows = [A,B,C,D,E,F,G,H,I],
+    blocks1(A, B, C),
+    blocks1(D, E, F),
+    blocks1(G, H, I).
+
+blocks1([], [], []).
+blocks1([A,B,C|Bs1], [D,E,F|Bs2], [G,H,I|Bs3]) :-
+    all_distinct1([A,B,C,D,E,F,G,H,I]),
+    blocks1(Bs1, Bs2, Bs3).
+
+all_distinct1(L) :-
+    separate(L, L1, L2),
+    range(R),
+    subtract(R, L1, R1),
+    all_distinct1(L2, R1).
+
+all_distinct1([], []) :- !.
+all_distinct1([H|T], R) :-
+    member(H, R),
+    subtract(R, [H], R1),
+    all_distinct1(T, R1).
+
+separate([], [], []) :- !.
+separate([H|T], L1, L2) :-
+    separate(T, L10, L20),
+    (   var(H)
+    ->  L1 = L10,
+        L2 = [H|L20]
+    ;   L1 = [H|L10],
+        L2 = L20
+    ).
+
+range([1,2,3,4,5,6,7,8,9]).
