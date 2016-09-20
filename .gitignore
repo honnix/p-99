@@ -1,2 +1,5 @@
 \*prolog\*
 *\*prolog\**
+target
+.ensime
+.ensime_cache/
