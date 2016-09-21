@@ -61,4 +61,41 @@ object MyList {
       case _ => head :: flatten(tail)
     }
   }
+
+  // 1.08
+  def compress[T](list: List[T]) = {
+    def compress0(list1: List[T], list2: List[T], cur: T): List[T] = list1 match {
+      case Nil => list2
+      case head :: tail if head == cur => compress0(tail, list2, head)
+      case _ => compress0(list1.tail, list1.head :: list2, list1.head)
+    }
+
+    reverse(compress0(list.tail, List(list.head), list.head))
+  }
+
+  // 1.09
+  def pack[T](list: List[T]) = {
+    def pack0(list1: List[T], list2: List[List[T]], cur: T): List[List[T]] = list1 match {
+      case Nil => list2
+      case head :: tail if head == cur => pack0(tail, (head :: list2.head) :: list2.tail, head)
+      case _ => pack0(list1.tail, List(list1.head) :: list2, list1.head)
+    }
+
+    reverse(pack0(list.tail, List(List(list.head)), list.head))
+  }
+
+  // 1.10
+  def encode[T](list: List[T]) = {
+    val list1 = pack(list)
+    list1.map(x => List(length(x), x.head))
+  }
+
+  // 1.11
+  def encode_modified[T](list: List[T]) = {
+    val list1 = pack(list)
+    list1.map {
+      case x :: Nil => x
+      case x => List(length(x), x.head)
+    }
+  }
 }
