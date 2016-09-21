@@ -1,4 +1,6 @@
-object MyList {
+package p99
+
+object MyLists {
   // 1.01
   def last[T](list: List[T]): T = list match {
     case last :: Nil => last
