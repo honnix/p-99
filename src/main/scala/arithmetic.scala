@@ -76,10 +76,30 @@ object Arithmetic {
     } filter { x => x._2 == None }
   }
 
+  // 2.07
   def gcd(x: Int, y: Int): Int = y match {
     case 0 => x
     case _ => gcd(y, x % y)
   }
 
+  // 2.08
   def coprime(x: Int, y: Int) = gcd(x, y) == 1
+
+  // 2.09
+  import scala.language.postfixOps
+  def phi(m: Int) = m match {
+    case 1 => 1
+    case _ => 1 until m filter { coprime(_, m) } size
+  }
+
+  // 2.10
+  def phi2(m: Int) = m match {
+    case 1 => 1
+    case _ =>
+      val factors = primeFactorsMult(m).asInstanceOf[List[List[Int]]]
+      factors.foldLeft(1) { (x, y) =>
+        val m :: p :: Nil = y
+        x * (p - 1) * Math.pow(p.toDouble, (m - 1).toDouble).toInt
+      }
+  }
 }
