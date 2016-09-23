@@ -119,20 +119,23 @@ write_list([H|T]) :-
 :- dynamic
     gray_d/2.
 
+gray(1, ['0', '1']) :- !.
 gray(N, C) :-
-    gray_d(N, C), !.
-gray(N, C) :-
-    findall(C1, gray0(N, 0, C1), C),
+    N1 is N - 1,
+    gray(N1, C1),
+    asserta(gray_d(N1, C1)),
+    gray0(C1, C, 0),
     asserta(gray_d(N, C)).
 
-gray0(N, N, '') :- !.
-gray0(N, I, C) :-
-    I1 is I + 1,
-    gray0(N, I1, C1),
-    (
-     atom_concat('0', C1, C);
-     atom_concat('1', C1, C)
-    ).
+gray0([], [], _) :- !.
+gray0([H|T], [A,B|C1], 0) :- !,
+    gray0(T, C1, 1),
+    atom_concat(H, '0', A),
+    atom_concat(H, '1', B).    
+gray0([H|T], [A,B|C1], 1) :- !,
+    gray0(T, C1, 0),
+    atom_concat(H, '1', A),
+    atom_concat(H, '0', B).    
 
 %% 3.05 (***) Huffman code.
 %% First of all, study a good book on discrete mathematics or algorithms for a detailed
