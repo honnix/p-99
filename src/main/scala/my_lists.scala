@@ -15,7 +15,7 @@ object MyLists {
 
   // 1.03
   def elem[T](list: List[T], index: Int) = {
-    def elem0[T](list: List[T], cur: Int, till: Int): T =
+    def elem0[S](list: List[S], cur: Int, till: Int): S =
       if (cur == till)
         list.head
       else
@@ -32,7 +32,7 @@ object MyLists {
 
   // 1.05
   def reverse[T](list: List[T]) = {
-    def reverse0[T](list: List[T], cur: List[T]): List[T] = list match {
+    def reverse0[S](list: List[S], cur: List[S]): List[S] = list match {
       case Nil => cur
       case head :: tail => val next = head :: cur; reverse0(tail, next)
     }
@@ -46,7 +46,7 @@ object MyLists {
 
   // 1.07
   def append[T](list1: List[T], list2: List[T]) = {
-    def append0[T](list1: List[T], list2: List[T]): List[T] = list2 match {
+    def append0[S](list1: List[S], list2: List[S]): List[S] = list2 match {
       case Nil => list1
       case head :: tail => append0(head :: list1, tail)
     }
@@ -136,7 +136,7 @@ object MyLists {
 
   // 1.16
   def drop[T](list: List[T], count: Int) = {
-    def drop0[T](list: List[T], cur: Int, count: Int): List[T] = list match {
+    def drop0[S](list: List[S], cur: Int, count: Int): List[S] = list match {
       case Nil => Nil
       case head :: tail =>
         if (cur == count)

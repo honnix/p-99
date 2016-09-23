@@ -128,14 +128,11 @@ gray(N, C) :-
     asserta(gray_d(N, C)).
 
 gray0([], [], _) :- !.
-gray0([H|T], [A,B|C1], 0) :- !,
-    gray0(T, C1, 1),
-    atom_concat(H, '0', A),
-    atom_concat(H, '1', B).    
-gray0([H|T], [A,B|C1], 1) :- !,
-    gray0(T, C1, 0),
-    atom_concat(H, '1', A),
-    atom_concat(H, '0', B).    
+gray0([H|T], [A,B|C1], F) :- !,
+    F1 is (F + 1) mod 2,
+    gray0(T, C1, F1),
+    atom_concat(H, F, A),
+    atom_concat(H, F1, B).
 
 %% 3.05 (***) Huffman code.
 %% First of all, study a good book on discrete mathematics or algorithms for a detailed
