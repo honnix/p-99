@@ -147,4 +147,30 @@ object MyLists {
 
     drop0(list, 1, count)
   }
+
+  // 1.17
+  def split[T](list: List[T], len: Int) = {
+    def split0[S](list: List[S], cur: Int, len: Int): (List[S], List[S]) =
+      if (cur == len)
+        (Nil, list)
+      else {
+        val (list1, list2) = split0(list.tail, cur + 1, len)
+        (list.head :: list1, list2)
+      }
+
+    split0(list, 0, len)
+  }
+
+  // 1.18
+  def slice[T](list: List[T], from: Int, to: Int) = {
+    def slice0[S](list: List[S], cur: Int, from: Int, to: Int): List[S] =
+      if (cur < from)
+        slice0(list.tail, cur + 1, from, to)
+      else if (cur <= to)
+        list.head :: slice0(list.tail, cur + 1, from, to)
+      else
+        Nil
+
+    slice0(list, 1, from, to)
+  }
 }
