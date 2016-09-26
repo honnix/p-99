@@ -184,4 +184,60 @@ object MyLists {
       val (list1, list2) = split(list, length(list) + len)
       append(list2, list1)
     }
+
+  // 1.20
+  def removeAt[T](list: List[T], i: Int) = {
+    val (list1, list2) = split(list, i - 1)
+    (append(list1, list2.tail), list2.head)
+  }
+
+  // 1.21
+  def insertAt[T](list: List[T], e: T, i: Int) = {
+    val (list1, list2) = split(list, i - 1)
+    append(list1, e :: list2)
+  }
+
+  // 1.22
+  def range(from: Int, to: Int): List[Int] =
+    if (from == to)
+      List(to)
+    else
+      from :: range(from + 1, to)
+
+  // 1.23
+  def rndSelect[T](list: List[T], count: Int) = {
+    def rndSelect0[S](list1: List[S], list2: List[S],
+      cur: Int, count: Int): List[S] =
+      if (cur > count)
+        list2
+      else {
+        val len = length(list1)
+        val index = scala.util.Random.nextInt(len) + 1
+        val (list3, e) = removeAt(list1, index)
+        rndSelect0(list3, e :: list2, cur + 1, count)
+      }
+
+    rndSelect0(list, Nil, 1, count)
+  }
+
+  // 1.24
+  def lotto[T](count: Int, to: Int) =
+    rndSelect(range(1, to), count)
+
+  // 1.25
+  def rndPermu[T](list: List[T]) =
+    rndSelect(list, length(list))
+
+  // 1.26
+  def combination[T](list: List[T], count: Int): Stream[List[T]] =
+    if (count == 0)
+      Stream(Nil)
+    else {
+      import scala.language.postfixOps
+      (0 to (length(list) - count)).toStream map { i =>
+        val (_, list1) = split(list, i + 1);
+        val list2 = combination(list1, count - 1)
+        list2.map(x => list(i) :: x)
+      } flatten
+    }
 }
