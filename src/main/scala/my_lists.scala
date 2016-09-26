@@ -173,4 +173,15 @@ object MyLists {
 
     slice0(list, 1, from, to)
   }
+
+  // 1.19
+  def rotate[T](list: List[T], len: Int) =
+    if (len == 0) list
+    else if (len > 0) {
+      val (list1, list2) = split(list, len)
+      append(list2, list1)
+    } else {
+      val (list1, list2) = split(list, length(list) + len)
+      append(list2, list1)
+    }
 }
