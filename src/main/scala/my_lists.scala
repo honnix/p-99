@@ -240,4 +240,26 @@ object MyLists {
         list2.map(x => list(i) :: x)
       } flatten
     }
+
+  // 1.27
+  def group3[T](list: List[T]) = {
+    for {
+      g1 <- combination(list, 2)
+      list1 = list diff g1
+      g2 <- combination(list1, 3)
+      g3 = list1 diff g2
+    } yield List(g1, g2, g3)
+  }
+
+  def group[T](list: List[T], groups: List[Int]): Stream[List[List[T]]] = groups match {
+    case Nil => throw new IllegalArgumentException()
+    case _ :: Nil => Stream(List(list))
+    case head :: tail =>
+      combination(list, head).flatMap { x => 
+        val list1 = list diff x
+        group(list1, tail).map { y =>
+          x :: y
+        }
+      }
+  }
 }
