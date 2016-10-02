@@ -261,4 +261,28 @@ object MyLists {
         }
       }
   }
+
+  // 1.28
+  def lsort[T](list: List[List[T]]) =
+    list.sortBy(_.length)
+
+  def lfsort[T](list: List[List[T]]) = {
+    def count(list: List[Int]): Map[Int, Int] = list match {
+      case Nil => Map()
+      case head :: tail =>
+        val (n, rest) = count0(head, tail)
+        Map(head -> (n + 1)) ++ count(rest)
+    }
+
+    def count0(e: Int, list: List[Int]): (Int, List[Int]) = list match {
+      case Nil => (0, Nil)
+      case head :: tail if head == e =>
+        val (n, rest) = count0(e, tail)
+        (n + 1, rest)
+      case _ => (0, list)
+    }
+
+    val map = count(list.map(_.length).sorted)
+    list.map(x => (map(x.length), x)).sortBy(_._1).map(_._2)
+  }
 }
