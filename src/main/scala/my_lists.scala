@@ -251,8 +251,7 @@ object MyLists {
     } yield List(g1, g2, g3)
   }
 
-  def group[T](list: List[T], groups: List[Int]): Stream[List[List[T]]] = groups match {
-    case Nil => throw new IllegalArgumentException()
+  def group[T](list: List[T], groups: List[Int]): Stream[List[List[T]]] = (groups: @unchecked) match {
     case _ :: Nil => Stream(List(list))
     case head :: tail =>
       combination(list, head).flatMap { x => 

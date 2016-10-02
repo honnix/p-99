@@ -17,7 +17,7 @@ object LogicAndCodes {
   def gray(l: List[String], flag: Int): List[String] = l match {
     case Nil => Nil
     case head :: tail =>
-      val l1 = gray(tail, (flag + 1) % 2)
-      head + flag.toString() :: head + ((flag + 1) % 2).toString() :: l1
+      val l1 = gray(tail, flag ^ 1)
+      head + flag.toString() :: head + (flag ^ 1).toString() :: l1
   }
 }

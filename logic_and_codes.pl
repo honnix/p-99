@@ -129,7 +129,7 @@ gray(N, C) :-
 
 gray0([], [], _) :- !.
 gray0([H|T], [A,B|C1], F) :- !,
-    F1 is (F + 1) mod 2,
+    F1 is F xor 1,
     gray0(T, C1, F1),
     atom_concat(H, F, A),
     atom_concat(H, F1, B).
