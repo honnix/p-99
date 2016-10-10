@@ -210,4 +210,31 @@ object BinaryTrees {
 
     layoutBinaryTree0(r, 1, 0)._2
   }
+
+  // 4.14
+  def layoutBinaryTree1[T](r: Node[T]) = {
+    def distance[S](r: Node[S]): Int = r match {
+      case null => 1
+      case Node(v, l, r) =>
+        2 * Math.max(distance(l), distance(r))
+    }
+
+    def layoutBinaryTree0[S](r: Node[S], level: Int, distance: Int): (Int, PNode[S]) = r match {
+      case null => (0, null)
+      case Node(v, l, r) =>
+        val (x, pl) = layoutBinaryTree0(l, level + 1, distance / 2)
+        val pr = layoutBinaryTree00(r, level + 1, x + distance, distance / 2)
+        (x + distance / 2, PNode(v, pl, pr, x + distance / 2, level))
+    }
+
+    def layoutBinaryTree00[S](r: Node[S], level: Int, x: Int, distance: Int): PNode[S] = r match {
+      case null => null
+      case Node(v, l, r) =>
+        val pl = layoutBinaryTree00(l, level + 1, x - distance / 2, distance / 2)
+        val pr = layoutBinaryTree00(r, level + 1, x + distance / 2, distance / 2)
+        PNode(v, pl, pr, x, level)
+    }
+
+    layoutBinaryTree0(r, 1, distance(r) / 2)._2
+  }
 }
