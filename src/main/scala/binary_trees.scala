@@ -2,9 +2,9 @@ package p99
 
 import language.postfixOps
 
-case class Node[T](value: T, left: Node[T], right: Node[T]) {
-  def this(value: T) { this(value, null, null) }
-}
+case class Node[T](value: T, left: Node[T], right: Node[T])
+
+case class DNode[T](value: T)
 
 object BinaryTrees {
 
@@ -140,4 +140,59 @@ object BinaryTrees {
       hbalTree(x).filter(nodes(_) == n)
     } flatten
   }
+
+  // 4.08
+  def countLeaves[T](r: Node[T]): Int = r match {
+    case null => 0
+    case Node(_, null, null) => 1
+    case Node(_, l, r) => countLeaves(l) + countLeaves(r)
+  }
+
+  // 4.09
+  def leaves[T](r: Node[T]): List[DNode[T]] = r match {
+    case null => Nil
+    case Node(v, null, null) => List(DNode(v))
+    case Node(_, l, r) => leaves(l) ++ leaves(r)
+  }
+
+  // 4.10
+  def internals[T](r: Node[T]): List[DNode[T]] = r match {
+    case null => Nil
+    case Node(_, null, null) => Nil
+    case Node(v, l, r) => DNode(v) :: internals(l) ++ internals(r)
+  }
+
+  // 4.11
+  def atLevel[T](r: Node[T], l: Int) = {
+    def atLevel[S](r: Node[S], l: Int, cur: Int): List[DNode[S]] =
+      if (cur == l)
+        List(DNode(r.value))
+      else
+        List(Option(r.left), Option(r.right)).flatMap { x =>
+          x.map(atLevel(_, l, cur + 1)).getOrElse(Nil)
+        }
+
+    if (r == null) Nil else atLevel(r, l, 1)
+  }
+
+  def levelOrder[T](r: Node[T]) = {
+    def levelOrder0[S](r: Node[S], cur: Int): List[DNode[S]] = {
+      val l = atLevel(r, cur)
+      if (l != Nil)
+        l ++ levelOrder0(r, cur + 1)
+      else l
+    }
+
+    levelOrder0(r, 1)
+  }
+
+  // 4.12
+  def completeBinaryTree(n: Int): Node[Char] =
+    if (n == 0)
+      null
+    else {
+      val l = ((n - 1).toDouble / 2 ceil).toInt
+      val r = n - 1 - l
+      Node('x', completeBinaryTree(l), completeBinaryTree(r))
+    }
 }
