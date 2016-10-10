@@ -4,6 +4,8 @@ import language.postfixOps
 
 case class Node[T](value: T, left: Node[T], right: Node[T])
 
+case class PNode[T](value: T, left: PNode[T], right: PNode[T], x: Int, y: Int)
+
 case class DNode[T](value: T)
 
 object BinaryTrees {
@@ -195,4 +197,17 @@ object BinaryTrees {
       val r = n - 1 - l
       Node('x', completeBinaryTree(l), completeBinaryTree(r))
     }
+
+  // 4.13
+  def layoutBinaryTree[T](r: Node[T]) = {
+    def layoutBinaryTree0[S](r: Node[S], level: Int, order: Int): (Int, PNode[S]) = r match {
+      case null => (order, null)
+      case Node(v, l, r) =>
+        val (order1, pl) = layoutBinaryTree0(l, level + 1, order)
+        val (order2, pr) = layoutBinaryTree0(r, level + 1, order1 + 1)
+        (order2, PNode(v, pl, pr, order1 + 1, level))
+    }
+
+    layoutBinaryTree0(r, 1, 0)._2
+  }
 }
