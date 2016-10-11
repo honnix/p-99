@@ -237,4 +237,35 @@ object BinaryTrees {
 
     layoutBinaryTree0(r, 1, distance(r) / 2)._2
   }
+
+  // 4.16
+  def treeString[T](r: Node[T]): String = r match {
+    case null => ""
+    case Node(v, l, r) if (l == null && r == null) => v.toString
+    case Node(v, l, r) => v.toString + s"(${treeString(l)},${treeString(r)})"
+  }
+
+  def stringTree(s: String) = {
+    def stringTree0(l: List[Char]): (List[Char], Node[Char]) = l match {
+      case Nil => (Nil, null)
+      case head :: '(' :: ',' :: tail =>
+        val (rest, right) = stringTree0(tail)
+        (rest, Node(head, null, right))
+      case head :: '(' :: tail =>
+        val (rest, left) = stringTree0(tail)
+        val (rest1, right) = stringTree0(rest)
+        (rest1, Node(head, left, right))
+      case head :: ',' :: tail if (head != '(' && head != ')') =>
+        (tail, Node(head, null, null))
+      case head :: ')' :: tail if (head != ')') =>
+        (tail, Node(head, null, null))
+      case ',' :: next :: tail if (next == ')') =>
+        (tail, null)
+      case ',' :: next :: tail if (next != ')') =>
+        stringTree0(next :: tail)
+      case ')' :: tail => (tail, null)
+    }
+
+    stringTree0(s.toList)._2
+  }
 }
