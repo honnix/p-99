@@ -409,7 +409,7 @@ string_to_tree([], nil) :- !.
 string_to_tree([X], t(X, nil, nil)) :- !.
 string_to_tree([X,'('|T], t(X, L, R)) :-
     append(List, [')'], T),
-    append(LL, [','|RL], List), !,
+    append(LL, [','|RL], List),
     string_to_tree(LL, L),
     string_to_tree(RL, R).
 
