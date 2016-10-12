@@ -242,7 +242,7 @@ object BinaryTrees {
   def treeString[T](r: Node[T]): String = r match {
     case null => ""
     case Node(v, l, r) if (l == null && r == null) => v.toString
-    case Node(v, l, r) => v.toString + s"(${treeString(l)},${treeString(r)})"
+    case Node(v, l, r) => s"${v.toString}(${treeString(l)},${treeString(r)})"
   }
 
   def stringTree(s: String) = {
@@ -267,5 +267,30 @@ object BinaryTrees {
     }
 
     stringTree0(s.toList)._2
+  }
+
+  // 4.17
+  def preorder[T](r: Node[T]): String = r match {
+    case null => ""
+    case Node(v, l, r) => s"${v.toString}${preorder(l)}${preorder(r)}"
+  }
+
+  def inorder[T](r: Node[T]): String = r match {
+    case null => ""
+    case Node(v, l, r) => s"${preorder(l)}${v.toString}${preorder(r)}"
+  }
+
+  def preinTree(pre: String, in: String) = {
+    def preinTree0(pre: List[Char], in: List[Char]): Node[Char] = {
+      if (pre.isEmpty && in.isEmpty) null
+      else {
+        val i = in.indexOf(pre.head)
+        val (il, ir0) = in.splitAt(i)
+        val (pl, pr) = pre.tail.splitAt(il.length)
+        Node(pre.head, preinTree0(pl, il), preinTree0(pr, ir0.tail))
+      }
+    }
+
+    preinTree0(pre.toList, in.toList)
   }
 }
