@@ -9,7 +9,6 @@ case class PNode[T](value: T, left: PNode[T], right: PNode[T], x: Int, y: Int)
 case class DNode[T](value: T)
 
 object BinaryTrees {
-
   // 4.01 doesn't make sense for scala
 
   // 4.02
