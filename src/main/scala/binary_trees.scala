@@ -129,7 +129,7 @@ object BinaryTrees {
       maxHeight0(n, 1, 1)
     }
 
-    def nodes[T](r: Node[T]): Int = r match {
+    def nodes[T](tree: Node[T]): Int = tree match {
       case null => 0
       case Node(_, l, r) =>
         nodes(l) + nodes(r) + 1
@@ -144,48 +144,48 @@ object BinaryTrees {
   }
 
   // 4.08
-  def countLeaves[T](r: Node[T]): Int = r match {
+  def countLeaves[T](tree: Node[T]): Int = tree match {
     case null => 0
     case Node(_, null, null) => 1
     case Node(_, l, r) => countLeaves(l) + countLeaves(r)
   }
 
   // 4.09
-  def leaves[T](r: Node[T]): List[DNode[T]] = r match {
+  def leaves[T](tree: Node[T]): List[DNode[T]] = tree match {
     case null => Nil
     case Node(v, null, null) => List(DNode(v))
     case Node(_, l, r) => leaves(l) ++ leaves(r)
   }
 
   // 4.10
-  def internals[T](r: Node[T]): List[DNode[T]] = r match {
+  def internals[T](tree: Node[T]): List[DNode[T]] = tree match {
     case null => Nil
     case Node(_, null, null) => Nil
     case Node(v, l, r) => DNode(v) :: internals(l) ++ internals(r)
   }
 
   // 4.11
-  def atLevel[T](r: Node[T], l: Int) = {
-    def atLevel[S](r: Node[S], l: Int, cur: Int): List[DNode[S]] =
+  def atLevel[T](tree: Node[T], l: Int) = {
+    def atLevel[S](tree: Node[S], l: Int, cur: Int): List[DNode[S]] =
       if (cur == l)
-        List(DNode(r.value))
+        List(DNode(tree.value))
       else
-        List(Option(r.left), Option(r.right)).flatMap { x =>
+        List(Option(tree.left), Option(tree.right)).flatMap { x =>
           x.map(atLevel(_, l, cur + 1)).getOrElse(Nil)
         }
 
-    if (r == null) Nil else atLevel(r, l, 1)
+    if (tree == null) Nil else atLevel(tree, l, 1)
   }
 
-  def levelOrder[T](r: Node[T]) = {
-    def levelOrder0[S](r: Node[S], cur: Int): List[DNode[S]] = {
-      val l = atLevel(r, cur)
+  def levelOrder[T](tree: Node[T]) = {
+    def levelOrder0[S](tree: Node[S], cur: Int): List[DNode[S]] = {
+      val l = atLevel(tree, cur)
       if (l != Nil)
-        l ++ levelOrder0(r, cur + 1)
+        l ++ levelOrder0(tree, cur + 1)
       else l
     }
 
-    levelOrder0(r, 1)
+    levelOrder0(tree, 1)
   }
 
   // 4.12
@@ -199,8 +199,8 @@ object BinaryTrees {
     }
 
   // 4.13
-  def layoutBinaryTree[T](r: Node[T]) = {
-    def layoutBinaryTree0[S](r: Node[S], level: Int, order: Int): (Int, PNode[S]) = r match {
+  def layoutBinaryTree[T](tree: Node[T]) = {
+    def layoutBinaryTree0[S](tree: Node[S], level: Int, order: Int): (Int, PNode[S]) = tree match {
       case null => (order, null)
       case Node(v, l, r) =>
         val (order1, pl) = layoutBinaryTree0(l, level + 1, order)
@@ -208,18 +208,18 @@ object BinaryTrees {
         (order2, PNode(v, pl, pr, order1 + 1, level))
     }
 
-    layoutBinaryTree0(r, 1, 0)._2
+    layoutBinaryTree0(tree, 1, 0)._2
   }
 
   // 4.14
-  def layoutBinaryTree1[T](r: Node[T]) = {
-    def distance[S](r: Node[S]): Int = r match {
+  def layoutBinaryTree1[T](tree: Node[T]) = {
+    def distance[S](tree: Node[S]): Int = tree match {
       case null => 1
       case Node(v, l, r) =>
         2 * Math.max(distance(l), distance(r))
     }
 
-    def layoutBinaryTree0[S](r: Node[S], level: Int, distance: Int): (Int, PNode[S]) = r match {
+    def layoutBinaryTree0[S](tree: Node[S], level: Int, distance: Int): (Int, PNode[S]) = tree match {
       case null => (0, null)
       case Node(v, l, r) =>
         val (x, pl) = layoutBinaryTree0(l, level + 1, distance / 2)
@@ -227,7 +227,7 @@ object BinaryTrees {
         (x + distance / 2, PNode(v, pl, pr, x + distance / 2, level))
     }
 
-    def layoutBinaryTree00[S](r: Node[S], level: Int, x: Int, distance: Int): PNode[S] = r match {
+    def layoutBinaryTree00[S](tree: Node[S], level: Int, x: Int, distance: Int): PNode[S] = tree match {
       case null => null
       case Node(v, l, r) =>
         val pl = layoutBinaryTree00(l, level + 1, x - distance / 2, distance / 2)
@@ -235,11 +235,11 @@ object BinaryTrees {
         PNode(v, pl, pr, x, level)
     }
 
-    layoutBinaryTree0(r, 1, distance(r) / 2)._2
+    layoutBinaryTree0(tree, 1, distance(tree) / 2)._2
   }
 
   // 4.16
-  def treeString[T](r: Node[T]): String = r match {
+  def treeString[T](tree: Node[T]): String = tree match {
     case null => ""
     case Node(v, l, r) if (l == null && r == null) => v.toString
     case Node(v, l, r) => s"${v.toString}(${treeString(l)},${treeString(r)})"
@@ -270,12 +270,12 @@ object BinaryTrees {
   }
 
   // 4.17
-  def preorder[T](r: Node[T]): String = r match {
+  def preorder[T](tree: Node[T]): String = tree match {
     case null => ""
     case Node(v, l, r) => s"${v.toString}${preorder(l)}${preorder(r)}"
   }
 
-  def inorder[T](r: Node[T]): String = r match {
+  def inorder[T](tree: Node[T]): String = tree match {
     case null => ""
     case Node(v, l, r) => s"${preorder(l)}${v.toString}${preorder(r)}"
   }
@@ -292,5 +292,24 @@ object BinaryTrees {
     }
 
     preinTree0(pre.toList, in.toList)
+  }
+
+  // 4.18
+  def dotString[T](tree: Node[T]): String = tree match {
+    case null => "."
+    case Node(v, l, r) => s"$v${dotString(l)}${dotString(r)}"
+  }
+
+  def dotString(s: String) = {
+    def dotString0(l: List[Char]): (List[Char], Node[Char]) = l match {
+      case '.' :: tail => (tail, null)
+      case head :: tail =>
+        val (l1, left) = dotString0(tail)
+        val (l2, right) = dotString0(l1)
+        (l2, Node(head, left, right))
+      case _ => ???
+    }
+
+    dotString0(s.toList)._2
   }
 }
