@@ -27,4 +27,19 @@ object MultiwayTrees {
 
     tree0(s.toList)._2
   }
+
+  def tree[T](t: MNode[T]): String =
+    t.value.toString + t.children.map(tree(_)).mkString + "^"
+
+  // 5.04
+  def ipl[T](tree: MNode[T]) = {
+    def ipl0[S](tree: MNode[S], d: Int): Int =
+      tree.children.foldLeft(d * tree.children.length)(_ + ipl0(_, d + 1))
+
+    ipl0(tree, 1)
+  }
+
+  // 5.05
+  def bottomUp[T](tree: MNode[T]): String =
+    tree.children.map(bottomUp(_)).mkString + tree.value.toString
 }
