@@ -42,4 +42,32 @@ object MultiwayTrees {
   // 5.05
   def bottomUp[T](tree: MNode[T]): String =
     tree.children.map(bottomUp(_)).mkString + tree.value.toString
+
+  // 5.06
+  def treeLTL[T](tree: MNode[T]) : String = tree match {
+    case MNode(v, Nil) => v.toString
+    case MNode(v, children) => s"($v ${children.map(treeLTL(_)).mkString(" ")})"
+  }
+
+  def treeLTL(s: String) = {
+    def treeLTL0(l: List[Char]): (List[Char], MNode[Char]) = l match {
+      case ' ' :: tail => treeLTL0(tail)
+      case '(' :: v :: tail =>
+        val (l1, children) = treeLTL1(tail)
+        (l1, MNode(v, children))
+      case v :: tail => (tail, MNode(v, Nil))
+      case Nil => (Nil, null)
+    }
+
+    def treeLTL1(l: List[Char]): (List[Char], List[MNode[Char]]) = l match {
+      case ' ' :: tail => treeLTL1(tail)
+      case ')' :: tail => (tail, Nil)
+      case _ =>
+        val (l1, head) = treeLTL0(l)
+        val (l2, tail) = treeLTL1(l1)
+        (l2, head :: tail)
+    }
+
+    treeLTL0(s.toList)._2
+  }
 }
