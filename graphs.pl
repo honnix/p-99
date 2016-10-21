@@ -31,14 +31,11 @@ neighbour(graph(_, E), A, N) :-
 %% given node A in the graph G. The predicate should return all cycles via
 %% backtracking. 
 cycle(G, A, P) :-
-    cycle(G, A, A, [A], P0),
-    reverse(P0, P).
-cycle(G, A, C, P0, P) :-
-    neighbour(G, C, N),
-    (   N \= A
-    ->  cycle(G, A, N, [N|P0], P)
-    ;   P = P0
-    ).
+    neighbour(G, A, N),
+    path(G, A, N, P1),
+    length(P1, L),
+    L > 2,
+    append(P1, [A], P).
 
 %% 6.04 (**) Construct all spanning trees
 %% Write a predicate s_tree(Graph,Tree) to construct (by backtracking) all
