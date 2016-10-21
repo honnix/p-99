@@ -8,6 +8,12 @@ object Graphs {
     List(('b', 'c'), ('b', 'f'), ('c', 'f'), ('f', 'k'), ('g', 'h'))
   )
 
+  val graph2 = Graph(
+    List('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
+    List(('a', 'b'), ('a', 'd'), ('b', 'c'), ('b', 'e'), ('c', 'e'),
+      ('e', 'h'), ('d', 'e'), ('d', 'f'), ('d', 'g'), ('g', 'h'))
+  )
+
   def neighbours[T](graph: Graph[T], node: T) = {
     if (!graph.nodes.contains(node)) Nil
     else
@@ -34,4 +40,23 @@ object Graphs {
   def cycle[T](graph: Graph[T], from: T) =
     neighbours(graph, from).toStream.flatMap(path(graph, from, _)).filter(_.length > 2)
       .map(_ ::: List(from))
+
+  // 6.04
+  def spanningTree(graph: Graph[Char]) = {
+    def select_edges(nodes: List[Char], edges: Stream[(Char, Char)]): Stream[List[(Char, Char)]] = {
+      def accept(nodes: List[Char], edge: (Char, Char)) = {
+        nodes.contains(edge._1) && !nodes.contains(edge._2) ||
+        nodes.contains(edge._2) && !nodes.contains(edge._1)
+      }
+
+      if (nodes == Nil) Stream(Nil)
+      else
+        edges.filter(accept(nodes, _)).flatMap { x =>
+          val nodes1 = nodes.filterNot(y => y == x._1 || y == x._2)
+          val edges1 = edges.filterNot(_ == x)
+          select_edges(nodes1, edges1).map(x :: _)
+      }
+    }
+    select_edges(graph.nodes.tail, graph.edges.toStream).map(x => Graph(graph.nodes, x.sorted)).distinct
+  }
 }
