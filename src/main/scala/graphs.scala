@@ -134,4 +134,20 @@ object Graphs {
     val nodes = degList(graph)
     coloring(graph.edges, nodes, 1)
   }
+
+  // 6.08
+  def tranverse[T](graph: Graph[T], node: T) = {
+    def tranverse0[S](nodes: List[S], graph: Graph[S],
+      visited: List[S]): List[S] = nodes match {
+      case Nil => visited
+      case head :: tail =>
+        val visited1 = if (!visited.contains(head)) {
+          val n = neighbours(graph, head)
+          tranverse0(n, graph, head :: visited)
+        } else visited
+        tranverse0(tail, graph, visited1)
+    }
+
+    tranverse0(List(node), graph, Nil).reverse
+  }
 }

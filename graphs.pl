@@ -167,17 +167,17 @@ welsh_powell_coloring1([H|T], Graph, N, Colors1, Colors2, Colored1, Colored2) :-
 
 traversal(graph(N, E), Start, List) :-
     neighbours(Start, E, Neighbours),
-    traversal0(graph(N, E), Neighbours, [Start], List0),
+    traversal0(Neighbours, graph(N, E), [Start], List0),
     reverse(List0, List).
 
-traversal0(_, [], List, List) :- !.
-traversal0(graph(N, E), [H|T], List0, List) :-
+traversal0([], _, List, List) :- !.
+traversal0([H|T], graph(N, E), List0, List) :-
     (   \+ memberchk(H, List0)
     ->  neighbours(H, E, Neighbours),
-        traversal0(graph(N, E), Neighbours, [H|List0], List1)
+        traversal0(Neighbours, graph(N, E), [H|List0], List1)
     ;   List1 = List0
     ),
-    traversal0(graph(N, E), T, List1, List).
+    traversal0(T, graph(N, E), List1, List).
 
 %% 6.09 (**) Connected components
 %% Write a predicate that splits a graph into its connected components. 
