@@ -12,13 +12,14 @@ object Graphs {
   val graph2 = Graph(
     List('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
     List(('a', 'b'), ('a', 'd'), ('b', 'c'), ('b', 'e'), ('c', 'e'),
-      ('e', 'h'), ('d', 'e'), ('d', 'f'), ('d', 'g'), ('g', 'h'))
+      ('e', 'h'), ('d', 'e'), ('d', 'f'), ('d', 'g'), ('f', 'g'), ('g', 'h'))
   )
 
   val graph3 = WGraph(
     List('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
     List(('a', 'b', 5), ('a', 'd', 3), ('b', 'c', 2), ('b', 'e', 4), ('c', 'e', 6),
-      ('e', 'h', 5), ('d', 'e', 7), ('d', 'f', 4), ('d', 'g', 3), ('g', 'h', 1))
+      ('e', 'h', 5), ('d', 'e', 7), ('d', 'f', 4), ('d', 'g', 3), ('f', 'g', 4),
+      ('g', 'h', 1))
   )
 
   def neighbours[T](graph: Graph[T], node: T) = {
@@ -88,5 +89,49 @@ object Graphs {
         s1 < s3 || s1 == s3 && s2 < s4
       })
     }.head.edges.foldLeft(0)(_ + _._3)
+  }
+
+  // 6.07
+  def degree[T](graph: Graph[T], node: T) = {
+    if (!graph.nodes.contains(node)) -1
+    else
+      graph.edges.foldLeft(0) { (x, y) =>
+        y match {
+          case (n, _) if (n == node) => x + 1
+          case (_, n) if (n == node) => x + 1
+          case _ => x
+        }
+      }
+  }
+
+  def degList[T](graph: Graph[T]) =
+    graph.nodes.sortWith(degree(graph, _) >= degree(graph, _))
+
+  def coloring[T](graph: Graph[T]) = {
+    def isNeighbour[S](edges: List[(S, S)], node1: S, node2: S) =
+      edges.exists { x =>
+        x. _1 == node1 && x._2 == node2 ||
+        x. _2 == node1 && x._1 == node2
+      }
+
+    def coloring[S](edges: List[(S, S)], nodes: List[S], c: Int): List[(S, Int)] = nodes match {
+      case Nil => Nil
+      case head :: tail =>
+        val (colored, l1) = coloring0(edges, tail, List((head, c)), List(head), c)
+        l1 ::: coloring(edges, tail.filterNot(colored.contains(_)), c + 1)
+    }
+
+    def coloring0[S](edges: List[(S, S)], nodes: List[S], l: List[(S, Int)],
+      colored: List[S], c: Int): (List[S], List[(S, Int)]) = nodes match {
+      case Nil => (colored, l)
+      case head :: tail =>
+        if (!colored.exists(isNeighbour(edges, _, head)))
+          coloring0(edges, tail, (head, c) :: l, head :: colored, c)
+        else
+          coloring0(edges, tail, l, colored, c)
+    }
+
+    val nodes = degList(graph)
+    coloring(graph.edges, nodes, 1)
   }
 }

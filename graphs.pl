@@ -146,13 +146,18 @@ welsh_powell_coloring(Graph, Colors) :-
 
 welsh_powell_coloring0([], _, _, Colors, Colors) :- !.
 welsh_powell_coloring0([H|T], Graph, N, Colors0, Colors) :-
-    Colors1 = [H-N|Colors0],
-    exclude({Graph, H}/[In]>>neighbour(Graph, H, In), T, T1),
-    maplist({N}/[In,Out]>>(Out = In-N), T1, Colors2),
-    append(Colors2, Colors1, Colors3),
-    subtract(T, T1, T2),
+    welsh_powell_coloring1(T, Graph, N, [H-N|Colors0], Colors1, [H], Colored),
+    substract(T, Colored, T1),
     N1 is N + 1,
-    welsh_powell_coloring0(T2, Graph, N1, Colors3, Colors).
+    welsh_powell_coloring0(T1, Graph, N1, Colors1, Colors).
+
+welsh_powell_coloring1([], _, _, Colors, Colors, Colored, Colored) :- !.
+welsh_powell_coloring1([H|T], Graph, N, Colors1, Colors2, Colored1, Colored2) :-
+    member(X, Colored1),
+    neighbour(Graph, X, H), !,
+    welsh_powell_coloring1(T, Graph, N, Colors1, Colors2, Colored1, Colored2).
+welsh_powell_coloring1([H|T], Graph, N, Colors1, Colors2, Colored1, Colored2) :-
+    welsh_powell_coloring1(T, Graph, N, [H-N|Colors1], Colors2, [H|Colored1], Colored2).
 
 %% 6.08 (**) Depth-first order graph traversal
 %% Write a predicate that generates a depth-first order graph traversal
