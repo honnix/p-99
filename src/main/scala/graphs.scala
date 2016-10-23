@@ -107,13 +107,13 @@ object Graphs {
   def degList[T](graph: Graph[T]) =
     graph.nodes.sortWith(degree(graph, _) >= degree(graph, _))
 
-  def coloring[T](graph: Graph[T]) = {
-    def isNeighbour[S](edges: List[(S, S)], node1: S, node2: S) =
-      edges.exists { x =>
-        x. _1 == node1 && x._2 == node2 ||
-        x. _2 == node1 && x._1 == node2
-      }
+  def isNeighbour[T](edges: List[(T, T)], node1: T, node2: T) =
+    edges.exists { x =>
+      x. _1 == node1 && x._2 == node2 ||
+      x. _2 == node1 && x._1 == node2
+    }
 
+  def coloring[T](graph: Graph[T]) = {
     def coloring[S](edges: List[(S, S)], nodes: List[S], c: Int): List[(S, Int)] = nodes match {
       case Nil => Nil
       case head :: tail =>
@@ -149,5 +149,45 @@ object Graphs {
     }
 
     tranverse0(List(node), graph, Nil).reverse
+  }
+
+  // 6.09
+  def split[T](graph: Graph[T]) = {
+    def split0[S](nodes: List[S], graph: Graph[S]): List[List[S]] = nodes match {
+      case Nil => Nil
+      case head :: tail =>
+        val component = tranverse(graph, head)
+        component :: split0(nodes.filterNot(component.contains(_)), graph)
+    }
+
+    split0(graph.nodes, graph)
+  }
+
+  // 6.10
+  def isBipartite[T](graph: Graph[T]) = {
+    def neighbours[S](edges: List[(S, S)], node: S) =
+      edges.collect {
+        case (x, neighbour) if (x == node) => neighbour
+        case (neighbour, x) if (x == node) => neighbour
+      }
+
+    def isBipartite0[S](nodes: List[S], edges: List[(S, S)],
+      left: List[S], right: List[S]): (List[S], List[S], List[(S, S)], Boolean) = edges match {
+      case Nil => (left, right, edges, true)
+      case _ =>
+        val n = neighbours(edges, nodes.head)
+        if (left.exists(n.contains(_))) (left, right, edges, false)
+        else {
+          val newEdges = edges.filterNot(x => x._1 == nodes.head || x._2 == nodes.head)
+          val (left1, right1, newEdges1, result) = isBipartite0(n, newEdges, n ::: right, left)
+          if (!result)
+            (left1, right1, newEdges1, result)
+          else
+            isBipartite0(nodes.tail, newEdges1, left1, right1)
+        }
+    }
+
+    // assume graph is connected
+    isBipartite0(List(graph.nodes.head), graph.edges, List(graph.nodes.head), Nil)
   }
 }
