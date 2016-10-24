@@ -76,4 +76,25 @@ object Misc {
 
     eightQueues0(new Array(25), 0)
   }
+
+  // lcs (not from the original p-99)
+  def lcs(s1: String, s2: String) = {
+    def lcs(s1: String, s2: String, m: Int, n: Int): Int = {
+      if (m == 0 || n == 0) 0
+      else if (s1(m - 1) == s2(n - 1)) 1 + lcs(s1, s2, m - 1, n - 1)
+      else Math.max(lcs(s1, s2, m - 1, n), lcs(s1, s2, m, n - 1))
+    }
+
+    lcs(s1, s2, s1.length, s2.length)
+  }
+
+  def lcsD(s1: String, s2: String) = {
+    val a = Array.fill(s1.length + 1, s2.length + 1)(0)
+    for (i <- 0 to s1.length; j <- 0 to s2.length)
+      if (i == 0 || j == 0) a(i)(j) = 0
+      else if (s1(i - 1) == s2(j - 1)) a(i)(j) = 1 + a(i - 1)(j - 1)
+      else a(i)(j) = Math.max(a(i - 1)(j), a(i)(j - 1))
+
+    a(s1.length)(s2.length)
+  }
 }
