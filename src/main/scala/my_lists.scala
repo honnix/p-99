@@ -51,7 +51,14 @@ object MyLists {
       case head :: tail => append0(head :: list1, tail)
     }
 
-    reverse(append0(reverse(list1), list2))
+    // a non tail recursion way
+    def append1[S](list1: List[S], list: List[S]): List[S] = list1 match {
+      case Nil => list
+      case head :: tail => head :: append1(tail, list)
+    }
+
+    // reverse(append0(reverse(list1), list2))
+    append1(list1, list2)
   }
 
   def flatten[T](list: List[_]): List[T] = list match {
